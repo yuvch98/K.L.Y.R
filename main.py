@@ -1,49 +1,51 @@
-import pygame
 import random
 import sys
 import time
+import tkinter as tk
+from tkinter import messagebox
+import pygame
 
-# Initialize pygame
+#e Initialize pygame
 pygame.init()
 
-# Constants
+#e Constants
 SCREEN_WIDTH, SCREEN_HEIGHT = 700, 600
 CELL_SIZE = SCREEN_WIDTH // 7
 RADIUS = CELL_SIZE // 3
 COLORS = {'Player': (0, 128, 255), 'Computer': (255, 128, 0), 'Empty': (255, 255, 255), 'Wall': (128, 128, 128), 'Aura': (0, 255, 0)}
 
-# Load images
+#e Load images
 rock_img = pygame.image.load('rock.png')
 paper_img = pygame.image.load('paper.png')
-scissors_img = pygame.image.load('scissor.png')
+scissors_img = pygame.image.load('scissors.png')
 flag_img = pygame.image.load('red-flag.png')
 images = {'Rock': rock_img, 'Paper': paper_img, 'Scissors': scissors_img, 'Flag': flag_img}
 
-# Scale images to fit the cell size
+#e Scale images to fit the cell size
 rock_img = pygame.transform.scale(rock_img, (CELL_SIZE, CELL_SIZE))
 paper_img = pygame.transform.scale(paper_img, (CELL_SIZE, CELL_SIZE))
 scissors_img = pygame.transform.scale(scissors_img, (CELL_SIZE, CELL_SIZE))
 flag_img = pygame.transform.scale(flag_img, (CELL_SIZE,CELL_SIZE))
 
-# Create screen
+#e Create screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('K.L.Y.R')
 
-# Initial positions
+#e Initial positions
 player_positions = [(5, col) for col in range(7)] + [(4, col) for col in range(7)]
 computer_positions = [(0, col) for col in range(7)] + [(1, col) for col in range(7)]
 wall_position = (random.randint(2,3), random.randint(0,6))
 
-# Assign items to soldiers
+#e Assign items to soldiers
 player_items = {pos: random.choice(['Rock', 'Paper', 'Scissors']) for pos in player_positions}
 computer_items = {pos: random.choice(['Rock', 'Paper', 'Scissors']) for pos in computer_positions}
 
-# Assign flag to one soldier for each player
+#e Assign flag to one soldier for each player
 player_flag_pos= random.choice(list(player_positions[:6]))
 computer_flag_pos = random.choice(list(computer_positions[:6]))
 player_items[player_flag_pos] = 'Flag'
 computer_items[computer_flag_pos] = 'Flag'
-# Functions
+#e Functions
 def draw_board():
     screen.fill(COLORS['Empty'])
     for row in range(6):
@@ -82,8 +84,10 @@ def player_move(position, new_position):
     player_items[new_position] = player_items.pop(position)
     check_victory()
 
+
 def computer_move():
     global computer_positions
+
     best_move = None
     best_score = -float('inf')
     for position in computer_positions:
@@ -96,8 +100,9 @@ def computer_move():
        computer_move_and_battle(computer_positions, computer_items, player_positions, player_items, best_move[0], best_move[1])
     check_victory()
 
+
 def heuristic(position):
-    # A simple heuristic: prefer moves that get closer to the player's starting line
+    # A simple heuristic: prefer moves that get closer to the player's flag
     player_flag_pos = list(player_items.keys())[list(player_items.values()).index('Flag')]
     row, col = position
     flag_row, flag_col = player_flag_pos
@@ -150,19 +155,20 @@ def determine_winner(player_item, opponent_item):
         return "Opponent"
 def check_victory():
     if 'Flag' not in player_items.values():
-        messagebox("Player 2 wins!")
+        show_message_box("Computer wins!")
         pygame.quit()
         sys.exit()
     if 'Flag' not in computer_items.values():
-        messagebox("Player 1 wins!")
+        show_message_box("Player wins!")
         pygame.quit()
         sys.exit()
 
-def messagebox(message):
-    pygame.display.set_caption(message)
-    pygame.time.wait(2000)
-    pygame.display.set_caption('K.L.Y.R')
 
+def show_message_box(message):
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    messagebox.showinfo("Game Over", message)
+    root.destroy()
 # # Game loop
 running = True
 player_turn = True
@@ -193,7 +199,7 @@ while running:
                 draw_piece(selected_position, COLORS['Player'], player_items[selected_position], selected=True)
             pygame.display.flip()
     if not player_turn:
-        time.sleep(2)  # Wait for 2 seconds before computer's turn
+        time.sleep(1)  # Wait for 2 seconds before computer's turn
         computer_move()
         player_turn = True
 
