@@ -48,5 +48,5 @@ class Computer(Player):
                     best_score = score
                     best_move = (position, move)
         if best_move:
-            game.move_and_battle(self, game.player, best_move[0], best_move[1])
+            game.move_and_battle(self, game.player, best_move[0], best_move[1], is_computer = True)
             game.check_victory()

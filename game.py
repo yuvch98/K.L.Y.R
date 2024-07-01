@@ -70,10 +70,10 @@ class Game:
         if item:
             screen.blit(images[item], (col * CELL_SIZE, row * CELL_SIZE))
 
-    def move_and_battle(self, player, opponent, position, new_position):
+    def move_and_battle(self, player, opponent, position, new_position,is_computer = False):
         player.move(position, new_position)
         if new_position in opponent.positions:
-            player.battle(opponent, new_position)
+            player.battle(opponent, new_position, is_computer)
         self.check_victory()
 
     def check_victory(self):

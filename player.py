@@ -19,16 +19,25 @@ class Player:
 
         return valid_moves
 
-    def battle(self, opponent, position):
+    def battle(self, opponent, position, is_computer = False):
         player_item = self.items[position]
         opponent_item = opponent.items[position]
         result = determine_winner(player_item, opponent_item)
         print("Begining battle")
-        print("Result is ", result)
-        if result == "Player":
+        if result == "Player" and is_computer:
+            print("Computer Won")
             opponent.positions.remove(position)
             opponent.items.pop(position)
-        elif result == "Opponent":
+        elif result == "Opponent" and is_computer:
+            print("Player Won")
+            self.positions.remove(position)
+            self.items.pop(position)
+        if result == "Player" and not is_computer:
+            print("Player Won")
+            opponent.positions.remove(position)
+            opponent.items.pop(position)
+        elif result == "Opponent" and not is_computer:
+            print("Computer won")
             self.positions.remove(position)
             self.items.pop(position)
 
