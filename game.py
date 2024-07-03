@@ -1,11 +1,9 @@
-import random
-import sys
-import tkinter as tk
-from tkinter import messagebox
+# game.py
 import pygame
+import constants
 from player import Player
 from computer import Computer
-import constants
+
 pygame.init()
 
 # Constants
@@ -28,23 +26,12 @@ flag_img = pygame.transform.scale(flag_img, (CELL_SIZE, CELL_SIZE))
 # Create screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('K.L.Y.R')
-
-
-# Helper functions
-def show_message_box(message):
-    root = tk.Tk()
-    root.withdraw()  # Hide the main window
-    messagebox.showinfo("Game Over", message)
-    root.destroy()
-
+FONT = pygame.font.Font(None, 36)
 class Game:
-    def __init__(self):
-        self.player = Player([(5, col) for col in range(7)] + [(4, col) for col in range(7)], {pos: random.choice(['Rock', 'Paper', 'Scissors']) for pos in [(5, col) for col in range(7)] + [(4, col) for col in range(7)]})
-        self.computer = Computer([(0, col) for col in range(7)] + [(1, col) for col in range(7)], {pos: random.choice(['Rock', 'Paper', 'Scissors']) for pos in [(0, col) for col in range(7)] + [(1, col) for col in range(7)]})
-        self.wall_position = (random.randint(2, 3), random.randint(0, 6))
-        self.COLORS = {'Player': (0, 128, 255), 'Computer': (255, 128, 0), 'Empty': (255, 255, 255), 'Wall': (128, 128, 128), 'Aura': (0, 255, 0)}
-
-
+    def __init__(self, logic):
+        self.logic = logic
+        self.COLORS = constants.COLORS
+        self.shuffle_used = False
     def draw_board(self):
         screen.fill(self.COLORS['Empty'])
         for row in range(6):
@@ -55,11 +42,11 @@ class Game:
         self.draw_pieces()
 
     def draw_pieces(self):
-        for pos in self.player.positions:
-            self.draw_piece(pos, self.COLORS['Player'], self.player.items[pos])
-        for pos in self.computer.positions:
-            self.draw_piece(pos, self.COLORS['Computer'], self.computer.items[pos])
-        self.draw_piece(self.wall_position, self.COLORS['Wall'], None)
+        for pos in self.logic.player.positions:
+            self.draw_piece(pos, self.COLORS['Player'], self.logic.player.items[pos])
+        for pos in self.logic.computer.positions:
+            self.draw_piece(pos, self.COLORS['Computer'], self.logic.computer.items[pos])
+        self.draw_piece(self.logic.wall_position, self.COLORS['Wall'], None)
 
     def draw_piece(self, position, color, item, selected=False):
         row, col = position
@@ -70,18 +57,22 @@ class Game:
         if item:
             screen.blit(images[item], (col * CELL_SIZE, row * CELL_SIZE))
 
-    def move_and_battle(self, player, opponent, position, new_position,is_computer = False):
-        player.move(position, new_position)
-        if new_position in opponent.positions:
-            player.battle(opponent, new_position, is_computer)
-        self.check_victory()
+    def draw_button(self, button_rect):
+        mouse_pos = pygame.mouse.get_pos()
+        if button_rect.collidepoint(mouse_pos):
+            pygame.draw.rect(screen, constants.BUTTON_HOVER_COLOR, button_rect)
+        else:
+            pygame.draw.rect(screen, constants.BUTTON_COLOR, button_rect)
+        text = FONT.render('Shuffle', True, constants.BUTTON_TEXT_COLOR)
+        text_rect = text.get_rect(center=button_rect.center)
+        screen.blit(text, text_rect)
 
-    def check_victory(self):
-        if 'Flag' not in self.player.items.values():
-            show_message_box("Computer wins!")
-            pygame.quit()
-            sys.exit()
-        if 'Flag' not in self.computer.items.values():
-            show_message_box("Player wins!")
-            pygame.quit()
-            sys.exit()
+    def handle_button_click(self, event, player):
+        button_rect = pygame.Rect(constants.SCREEN_WIDTH - constants.BUTTON_WIDTH - 10,
+                                  constants.SCREEN_HEIGHT - constants.BUTTON_HEIGHT - 10, constants.BUTTON_WIDTH,
+                                  constants.BUTTON_HEIGHT)
+        if button_rect.collidepoint(event.pos) and not self.shuffle_used:
+            player.shuffle_items()
+            self.shuffle_used = True  # Set the flag to True after shuffle
+            return True
+        return False

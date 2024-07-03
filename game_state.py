@@ -34,7 +34,7 @@ class GameState:
 
         attacker_item = attacker_items[position]
         defender_item = defender_items[position]
-        result = determine_winner(attacker_item, defender_item)
+        result = determine_winner(attacker_item, defender_item,position ,modify=True)
 
         if result == "Player":
             defender_positions.remove(position)

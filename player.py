@@ -1,3 +1,4 @@
+# player.py
 import random
 
 class Player:
@@ -16,40 +17,9 @@ class Player:
         row, col = position
         potential_moves = [(row-1, col), (row+1, col), (row, col-1), (row, col+1)]
         valid_moves = [move for move in potential_moves if 0 <= move[0] < 6 and 0 <= move[1] < 7 and move not in other_positions + [wall_position]]
-
         return valid_moves
-
-    def battle(self, opponent, position, is_computer = False):
-        player_item = self.items[position]
-        opponent_item = opponent.items[position]
-        result = determine_winner(player_item, opponent_item)
-        print("Begining battle")
-        if result == "Player" and is_computer:
-            print("Computer Won")
-            opponent.positions.remove(position)
-            opponent.items.pop(position)
-        elif result == "Opponent" and is_computer:
-            print("Player Won")
-            self.positions.remove(position)
-            self.items.pop(position)
-        if result == "Player" and not is_computer:
-            print("Player Won")
-            opponent.positions.remove(position)
-            opponent.items.pop(position)
-        elif result == "Opponent" and not is_computer:
-            print("Computer won")
-            self.positions.remove(position)
-            self.items.pop(position)
-
-def determine_winner(player_item, opponent_item):
-    if player_item == opponent_item:
-        player_item = random.choice(['Rock', 'Paper', 'Scissors'])
-        opponent_item = random.choice(['Rock', 'Paper', 'Scissors'])
-    if (player_item == 'Rock' and opponent_item == 'Scissors') or (
-            player_item == 'Paper' and opponent_item == 'Rock') or (
-            player_item == 'Scissors' and opponent_item == 'Paper'):
-        return "Player"
-    if opponent_item == 'Flag':
-        return "Player"
-    else:
-        return "Opponent"
+    def shuffle_items(self):
+        for pos in self.positions:
+            self.items[pos] = random.choice(['Rock', 'Paper', 'Scissors'])
+        flag_new_pos = random.choice(self.positions)
+        self.items[flag_new_pos] = 'Flag'
