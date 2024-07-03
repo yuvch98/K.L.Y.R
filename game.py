@@ -7,14 +7,14 @@ from computer import Computer
 pygame.init()
 
 # Constants
-SCREEN_WIDTH, SCREEN_HEIGHT = 700, 600
-CELL_SIZE = SCREEN_WIDTH // 7
+SCREEN_WIDTH, SCREEN_HEIGHT = constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT
+CELL_SIZE = constants.CELL_SIZE
 
 # Load images
-rock_img = pygame.image.load('rock.png')
-paper_img = pygame.image.load('paper.png')
-scissors_img = pygame.image.load('scissors.png')
-flag_img = pygame.image.load('red-flag.png')
+rock_img = pygame.image.load(constants.rock_png)
+paper_img = pygame.image.load(constants.paper_png)
+scissors_img = pygame.image.load(constants.scissors_png)
+flag_img = pygame.image.load(constants.flag_png)
 images = {'Rock': rock_img, 'Paper': paper_img, 'Scissors': scissors_img, 'Flag': flag_img}
 
 # Scale images to fit the cell size
@@ -26,20 +26,24 @@ flag_img = pygame.transform.scale(flag_img, (CELL_SIZE, CELL_SIZE))
 # Create screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('K.L.Y.R')
-FONT = pygame.font.Font(None, 36)
+FONT = pygame.font.Font(None, 24)
+
 class Game:
     def __init__(self, logic):
         self.logic = logic
         self.COLORS = constants.COLORS
         self.shuffle_used = False
+        self.player_turn = True
+
     def draw_board(self):
-        screen.fill(self.COLORS['Empty'])
+        screen.fill((255,255,255))
         for row in range(6):
             for col in range(7):
                 rect = pygame.Rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
                 pygame.draw.rect(screen, self.COLORS['Empty'], rect)
                 pygame.draw.rect(screen, (0, 0, 0), rect, 1)
         self.draw_pieces()
+        self.draw_side_column()
 
     def draw_pieces(self):
         for pos in self.logic.player.positions:
@@ -57,6 +61,26 @@ class Game:
         if item:
             screen.blit(images[item], (col * CELL_SIZE, row * CELL_SIZE))
 
+    def draw_side_column(self):
+        # Draw the background for the side column
+        side_column_rect = pygame.Rect(7 * CELL_SIZE, 0, constants.SIDE_COLUMN_WIDTH, SCREEN_HEIGHT)
+        pygame.draw.rect(screen, (255, 255, 255), side_column_rect)
+
+        # Display whose turn it is
+        turn_text = FONT.render("Player's Turn" if self.player_turn else "Computer's Turn", True, (0, 0, 0))
+        screen.blit(turn_text, (7 * CELL_SIZE + 10, 10))
+
+        # Display the number of soldiers
+        player_soldiers_text = FONT.render(f"Player Soldiers: {len(self.logic.player.positions)}", True, (0, 0, 0))
+        screen.blit(player_soldiers_text, (7 * CELL_SIZE + 10, 50))
+
+        computer_soldiers_text = FONT.render(f"Computer Soldiers: {len(self.logic.computer.positions)}", True, (0, 0, 0))
+        screen.blit(computer_soldiers_text, (7 * CELL_SIZE + 10, 90))
+
+        # Draw the shuffle button
+        button_rect = pygame.Rect(7 * CELL_SIZE + 10, 150, constants.BUTTON_WIDTH, constants.BUTTON_HEIGHT)
+        self.draw_button(button_rect)
+
     def draw_button(self, button_rect):
         mouse_pos = pygame.mouse.get_pos()
         if button_rect.collidepoint(mouse_pos):
@@ -68,9 +92,7 @@ class Game:
         screen.blit(text, text_rect)
 
     def handle_button_click(self, event, player):
-        button_rect = pygame.Rect(constants.SCREEN_WIDTH - constants.BUTTON_WIDTH - 10,
-                                  constants.SCREEN_HEIGHT - constants.BUTTON_HEIGHT - 10, constants.BUTTON_WIDTH,
-                                  constants.BUTTON_HEIGHT)
+        button_rect = pygame.Rect(7 * CELL_SIZE + 10, 150, constants.BUTTON_WIDTH, constants.BUTTON_HEIGHT)
         if button_rect.collidepoint(event.pos) and not self.shuffle_used:
             player.shuffle_items()
             self.shuffle_used = True  # Set the flag to True after shuffle
