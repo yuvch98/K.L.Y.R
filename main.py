@@ -7,7 +7,7 @@ from computer import Computer
 from game import Game
 from game_logic import GameLogic
 import random
-
+from game_state import GameState
 # Initialize Pygame
 pygame.init()
 
@@ -33,7 +33,7 @@ while running:
             elif game.player_turn:
                 row, col = mouse_y // constants.CELL_SIZE, mouse_x // constants.CELL_SIZE
                 if selected_position:
-                    if (row, col) in player.get_valid_moves(selected_position, player.positions, game_logic.wall_position):
+                    if (row, col) in game_logic.get_valid_moves(selected_position, player.positions, game_logic.wall_position):
                         game_logic.move_and_battle(player, computer, selected_position, (row, col))
                         selected_position = None
                         game.player_turn = False
@@ -50,8 +50,8 @@ while running:
                     game.draw_piece(selected_position, constants.COLORS['Player'], player.items[selected_position], selected=True)
                 pygame.display.flip()
     if not game.player_turn:
-        time.sleep(1)
-        computer.make_best_move(game_logic)
+        game_state = GameState(game_logic.player.positions, game_logic.computer.positions, game_logic.player.items, game_logic.computer.items, game_logic.wall_position, game_logic.player.flag_pos, game_logic.computer.flag_pos)
+        computer.make_best_move(game_state, game_logic)
         game.player_turn =True
 
     game.draw_board()

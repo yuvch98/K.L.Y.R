@@ -5,14 +5,13 @@ import tkinter as tk
 from tkinter import messagebox
 import pygame
 
-pygame.init()
 
-# Helper functions
 def show_message_box(message):
     root = tk.Tk()
     root.withdraw()  # Hide the main window
     messagebox.showinfo("Game Over", message)
     root.destroy()
+
 
 class GameLogic:
     def __init__(self, player, computer):
@@ -36,10 +35,16 @@ class GameLogic:
             pygame.quit()
             sys.exit()
 
-    def determine_winner(self, player_item, opponent_item):
-        if player_item == opponent_item:
+    def determine_winner(self, player_item, opponent_item, position, is_computer):
+        while player_item == opponent_item:
             player_item = random.choice(['Rock', 'Paper', 'Scissors'])
             opponent_item = random.choice(['Rock', 'Paper', 'Scissors'])
+        if is_computer:
+            self.computer.items[position] = player_item
+            self.player.items[position] = opponent_item
+        else:
+            self.player.items[position] = player_item
+            self.computer.items[position] = opponent_item
         if (player_item == 'Rock' and opponent_item == 'Scissors') or \
            (player_item == 'Paper' and opponent_item == 'Rock') or \
            (player_item == 'Scissors' and opponent_item == 'Paper'):
@@ -52,7 +57,7 @@ class GameLogic:
     def battle(self, attacker, defender, position, is_computer=False):
         attacker_item = attacker.items[position]
         defender_item = defender.items[position]
-        result = self.determine_winner(attacker_item, defender_item)
+        result = self.determine_winner(attacker_item, defender_item, position, is_computer)
         print("Beginning battle")
         if result == "Attacker":
             print("Attacker Won")
@@ -62,3 +67,9 @@ class GameLogic:
             print("Defender Won")
             attacker.positions.remove(position)
             attacker.items.pop(position)
+
+    def get_valid_moves(self, position, other_positions, wall_position):
+        row, col = position
+        potential_moves = [(row-1, col), (row+1, col), (row, col-1), (row, col+1)]
+        valid_moves = [move for move in potential_moves if 0 <= move[0] < 6 and 0 <= move[1] < 7 and move not in other_positions + [wall_position]]
+        return valid_moves
