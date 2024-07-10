@@ -87,9 +87,77 @@ class GameState:
 
         positional_score = self._calculate_positional_advantage()
         safety_score = self._calculate_piece_safety()
-        mobility_score = self._calculate_mobility()
         winning_score = self._calculate_winning_score()
-        return positional_score + safety_score + mobility_score + winning_score
+        mobility_score = self._calculate_mobility_score()
+        control_score = self._calculate_central_control_score()
+        threat_defense_score = self._calculate_threat_defense_score()
+
+        return positional_score + safety_score + winning_score + mobility_score + control_score + threat_defense_score
+
+    def _calculate_mobility_score(self):
+        score = 0
+        for pos in self.computer_positions:
+            score += len(self.get_valid_moves(pos, self.computer_positions))
+        for pos in self.player_positions:
+            score -= len(self.get_valid_moves(pos, self.player_positions))
+        return score
+
+    def _calculate_central_control_score(self):
+        center_positions = [(2, 3), (3, 3), (2, 4), (3, 4)]
+        score = 0
+        for pos in self.computer_positions:
+            if pos in center_positions:
+                score += 5
+        for pos in self.player_positions:
+            if pos in center_positions:
+                score -= 5
+        return score
+
+    def _calculate_threat_defense_score(self):
+        score = 0
+        for pos in self.computer_positions:
+            if pos in self.player_positions:
+                score += 10  # Threatening an opponent piece
+        for pos in self.player_positions:
+            if pos in self.computer_positions:
+                score -= 10  # Opponent threatening a piece
+        return score
+
+    def _calculate_positional_advantage(self):
+        score = 0
+        for pos in self.computer_positions:
+            score -= self._distance(pos, self.player_flag_pos)  # Closer to player's flag is better
+        for pos in self.player_positions:
+            score += self._distance(pos, self.computer_flag_pos)  # Closer to computer's flag is worse
+        return score
+    def _calculate_mobility_score(self):
+        score = 0
+        for pos in self.computer_positions:
+            score += len(self.get_valid_moves(pos, self.computer_positions))
+        for pos in self.player_positions:
+            score -= len(self.get_valid_moves(pos, self.player_positions))
+        return score
+
+    def _calculate_central_control_score(self):
+        center_positions = [(2, 3), (3, 3), (2, 4), (3, 4)]
+        score = 0
+        for pos in self.computer_positions:
+            if pos in center_positions:
+                score += 5
+        for pos in self.player_positions:
+            if pos in center_positions:
+                score -= 5
+        return score
+
+    def _calculate_threat_defense_score(self):
+        score = 0
+        for pos in self.computer_positions:
+            if pos in self.player_positions:
+                score += 10  # Threatening an opponent piece
+        for pos in self.player_positions:
+            if pos in self.computer_positions:
+                score -= 10  # Opponent threatening a piece
+        return score
 
     def _calculate_winning_score(self):
         score = 0
@@ -105,19 +173,10 @@ class GameState:
             opponent_item = opponent_items[position]
             own_item = own_items[position]
             if self._is_winner(own_item, opponent_item):
-                score += 20  # High score for winning a fight
+                score += 1000  # High score for winning a fight
             else:
                 score -= 20  # Low score for losing a fight
         return score
-
-    def _calculate_positional_advantage(self):
-        score = 0
-        for pos in self.computer_positions:
-            score -= self._distance(pos, self.player_flag_pos)  # Closer to player's flag is better
-        for pos in self.player_positions:
-            score += self._distance(pos, self.computer_flag_pos)  # Closer to computer's flag is worse
-        return score
-
     def _calculate_piece_safety(self):
         score = 0
         for pos in self.computer_positions:
@@ -127,18 +186,8 @@ class GameState:
             if pos == self.player_flag_pos:
                 score -= 10  # High value for opponent flag safety
         return score
-
-    def _calculate_mobility(self):
-        score = 0
-        for pos in self.computer_positions:
-            score += len(self.get_valid_moves(pos, self.computer_positions))
-        for pos in self.player_positions:
-            score -= len(self.get_valid_moves(pos, self.player_positions))
-        return score
-
     def _distance(self, pos1, pos2):
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
-
     def minimax_alpha_beta(self, depth, alpha, beta, maximizing_player):
         if depth == 0 or self.is_terminal():
             return self.evaluate()
