@@ -23,6 +23,6 @@ class Player:
     def shuffle_items(self):
         for pos in self.positions:
             self.items[pos] = random.choice(['Rock', 'Paper', 'Scissors'])
-        flag_new_pos = random.choice(self.positions)
-        self.items[flag_new_pos] = 'Flag'
+        self.flag_pos = random.choice(self.positions)
+        self.items[self.flag_pos] = 'Flag'
         show_message_box("Items have been shuffled!")

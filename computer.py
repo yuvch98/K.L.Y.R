@@ -83,10 +83,10 @@ class Computer(Player):
             player_item = game_logic.player.items[new_pos]
             computer_item = game_logic.computer.items[old_pos]
             if player_item == computer_item:
-                score += 10  # worth taking the chance...
+                score += 0  # worth taking the chance...
                 return score
             if self.win(computer_item, player_item):
-                score += 200
+                score += 20
             #if it's a loss for the computer
             else:
                 score -= 20
@@ -105,7 +105,7 @@ class Computer(Player):
     def shuffle_items_check(self, game_logic):
         if self.flag_compromised: # if the computer already did shuffle
             return
-        time.sleep(1)
+        time.sleep(0.2)
         for position in self.positions:
             if position == self.flag_pos:
                 for move in game_logic.get_valid_moves(position, self.positions, game_logic.wall_position):

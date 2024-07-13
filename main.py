@@ -51,7 +51,7 @@ while running:
                 pygame.display.flip()
     if not game.player_turn:
         computer.make_best_move(game_logic)
-        time.sleep(1)
+        time.sleep(0.2)
         game.player_turn = True
 
     game.draw_board()

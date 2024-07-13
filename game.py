@@ -1,8 +1,6 @@
 # game.py
 import pygame
 import constants
-from player import Player
-from computer import Computer
 
 pygame.init()
 
@@ -83,10 +81,15 @@ class Game:
 
     def draw_button(self, button_rect):
         mouse_pos = pygame.mouse.get_pos()
-        if button_rect.collidepoint(mouse_pos):
+        if button_rect.collidepoint(mouse_pos) and not self.shuffle_used:
             pygame.draw.rect(screen, constants.BUTTON_HOVER_COLOR, button_rect)
+        elif button_rect.collidepoint(mouse_pos) and not self.shuffle_used:
+            pygame.draw.rect(screen, constants.BUTTON_COLOR, button_rect)
+        elif self.shuffle_used:
+            pygame.draw.rect(screen, constants.BUTTON_COLOR_AFTER_CLICK, button_rect)
         else:
             pygame.draw.rect(screen, constants.BUTTON_COLOR, button_rect)
+
         text = FONT.render('Shuffle', True, constants.BUTTON_TEXT_COLOR)
         text_rect = text.get_rect(center=button_rect.center)
         screen.blit(text, text_rect)
