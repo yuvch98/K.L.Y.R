@@ -38,8 +38,19 @@ class Game:
         for row in range(6):
             for col in range(7):
                 rect = pygame.Rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-                pygame.draw.rect(screen, self.COLORS['Empty'], rect)
-                pygame.draw.rect(screen, (0, 0, 0), rect, 1)
+                if col % 2 == 0 and row % 2 == 0:
+                    pygame.draw.rect(screen, constants.CELL_EVEN_COLOR, rect)
+                    pygame.draw.rect(screen, (0, 0, 0), rect, 1)
+                elif col % 2 ==1 and row % 2 == 0:
+                    pygame.draw.rect(screen, constants.CELL_ODD_COLOR, rect)
+                    pygame.draw.rect(screen, (0, 0, 0), rect, 1)
+                elif col % 2 == 0 and row % 2 == 1:
+                    pygame.draw.rect(screen, constants.CELL_ODD_COLOR, rect)
+                    pygame.draw.rect(screen, (0, 0, 0), rect, 1)
+                else:
+                    pygame.draw.rect(screen, constants.CELL_EVEN_COLOR, rect)
+                    pygame.draw.rect(screen, (0, 0, 0), rect, 1)
+
         self.draw_pieces()
         self.draw_side_column()
 
@@ -54,7 +65,7 @@ class Game:
         row, col = position
         center = (col * CELL_SIZE + CELL_SIZE // 2, row * CELL_SIZE + CELL_SIZE // 2)
         if selected:
-            pygame.draw.circle(screen, self.COLORS['Aura'], center, constants.RADIUS + 5)
+            pygame.draw.circle(screen, self.COLORS['Aura'], center, constants.RADIUS + 7)
         pygame.draw.circle(screen, color, center, constants.RADIUS)
         if item:
             screen.blit(images[item], (col * CELL_SIZE, row * CELL_SIZE))
@@ -62,7 +73,7 @@ class Game:
     def draw_side_column(self):
         # Draw the background for the side column
         side_column_rect = pygame.Rect(7 * CELL_SIZE, 0, constants.SIDE_COLUMN_WIDTH, SCREEN_HEIGHT)
-        pygame.draw.rect(screen, (255, 255, 255), side_column_rect)
+        pygame.draw.rect(screen, constants.SIDE_COLUMN_COLOR, side_column_rect)
 
         # Display whose turn it is
         turn_text = FONT.render("Player's Turn" if self.player_turn else "Computer's Turn", True, (0, 0, 0))
