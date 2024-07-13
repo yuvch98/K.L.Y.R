@@ -29,20 +29,20 @@ class Computer(Player):
         score += self.distance_flag(new_pos, game_logic.player.flag_pos, game_logic)  # Add distance evaluation
         return score
 
-    def distance_flag(self, start_pos, flag_pos, game_logic):
+    def distance_flag(self, start_pos, flag_pos, game_logic): # uses IDA*
         def heuristic(pos1, pos2):
             return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
-        def search(path, g, bound):
-            node = path[-1]
-            f = g + heuristic(node, flag_pos)
-            if f > bound:
+        def search(path, g, bound): # Helper function for IDA*
+            node = path[-1] # node = (0, 1)
+            f = g + heuristic(node, flag_pos) # 0 + number
+            if f > bound: # f == bound
                 return f
             if node == flag_pos:
                 return 'FOUND'
             min_bound = float('inf')
             for neighbor in get_neighbors(node):
-                if neighbor not in path:
+                if neighbor not in path: # valid moves = neighbor
                     path.append(neighbor)
                     t = search(path, g + 1, bound)
                     if t == 'FOUND':
@@ -75,7 +75,7 @@ class Computer(Player):
             return valid_neighbors
 
         distance = ida_star(start_pos)
-        return -distance  # Return negative distance to reward closer positions
+        return -distance
 
     def is_winner(self, old_pos, new_pos, game_logic):
         score = 0
@@ -103,8 +103,9 @@ class Computer(Player):
             return False
 
     def shuffle_items_check(self, game_logic):
-        if self.flag_compromised:
+        if self.flag_compromised: # if the computer already did shuffle
             return
+        time.sleep(1)
         for position in self.positions:
             if position == self.flag_pos:
                 for move in game_logic.get_valid_moves(position, self.positions, game_logic.wall_position):
@@ -112,4 +113,4 @@ class Computer(Player):
                         self.flag_compromised = True
         if self.flag_compromised:
             self.shuffle_items()
-            time.sleep(1)
+

@@ -9,14 +9,14 @@ import time
 
 def show_message_box(message):
     root = tk.Tk()
-    root.withdraw()  # Hide the main window
+    root.withdraw()
     messagebox.showinfo("Game Over", message)
     root.destroy()
 
 
 def show_message_box_same_weapon(message):
     root = tk.Tk()
-    root.withdraw()  # Hide the main window
+    root.withdraw()
     messagebox.showinfo("Same Weapon", message)
     root.destroy()
 
