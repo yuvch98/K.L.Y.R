@@ -4,12 +4,20 @@ import sys
 import tkinter as tk
 from tkinter import messagebox
 import pygame
+import time
 
 
 def show_message_box(message):
     root = tk.Tk()
     root.withdraw()  # Hide the main window
     messagebox.showinfo("Game Over", message)
+    root.destroy()
+
+
+def show_message_box_same_weapon(message):
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    messagebox.showinfo("Same Weapon", message)
     root.destroy()
 
 
@@ -36,9 +44,17 @@ class GameLogic:
             sys.exit()
 
     def determine_winner(self, player_item, opponent_item, position, is_computer):
-        while player_item == opponent_item:
-            player_item = random.choice(['Rock', 'Paper', 'Scissors'])
-            opponent_item = random.choice(['Rock', 'Paper', 'Scissors'])
+        if player_item == opponent_item and player_item != 'Flag':
+            show_message_box_same_weapon("Same Weapon, Beginning the random choice")
+            while player_item == opponent_item:
+                player_item = random.choice(['Rock', 'Paper', 'Scissors'])
+                opponent_item = random.choice(['Rock', 'Paper', 'Scissors'])
+            if is_computer:
+                show_message_box_same_weapon(f"Computer's new weapon is :{player_item}\nPlayer's new weapon is :{opponent_item}")
+
+            else:
+                show_message_box_same_weapon(f"Player's new weapon is :{player_item}\nComputer's new weapon is :{opponent_item}")
+
         if is_computer:
             self.computer.items[position] = player_item
             self.player.items[position] = opponent_item
@@ -49,6 +65,7 @@ class GameLogic:
            (player_item == 'Paper' and opponent_item == 'Rock') or \
            (player_item == 'Scissors' and opponent_item == 'Paper'):
             return "Attacker"
+
         if opponent_item == 'Flag':
             return "Attacker"
         else:
@@ -58,13 +75,21 @@ class GameLogic:
         attacker_item = attacker.items[position]
         defender_item = defender.items[position]
         result = self.determine_winner(attacker_item, defender_item, position, is_computer)
+
+        time.sleep(0.1)
         print("Beginning battle")
         if result == "Attacker":
-            print("Attacker Won")
+            if is_computer:
+                print("Computer Won")
+            else:
+                print("Player Won")
             defender.positions.remove(position)
             defender.items.pop(position)
         else:
-            print("Defender Won")
+            if is_computer:
+                print("Player Won")
+            else:
+                print("Computer Won")
             attacker.positions.remove(position)
             attacker.items.pop(position)
 

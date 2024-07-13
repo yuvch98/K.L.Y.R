@@ -1,11 +1,15 @@
+import time
+
 from player import Player
 
 
 class Computer(Player):
     def __init__(self, positions, items):
         super().__init__(positions, items)
+        self.flag_compromised = False
 
     def make_best_move(self, game_logic):
+        self.shuffle_items_check(game_logic= game_logic)
         best_move = None
         best_score = -float('inf')
         for position in self.positions:
@@ -26,34 +30,52 @@ class Computer(Player):
         return score
 
     def distance_flag(self, start_pos, flag_pos, game_logic):
-        # DFS to calculate the distance from start_pos to flag_pos
-        stack = [(start_pos, 0)]  # (current_position, current_distance)
-        visited = set()
+        def heuristic(pos1, pos2):
+            return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
-        while stack:
-            distance = 0
-            current_pos, current_distance = stack.pop()
-            if current_pos == flag_pos:
-                return -current_distance  # Return negative distance to reward closer positions
+        def search(path, g, bound):
+            node = path[-1]
+            f = g + heuristic(node, flag_pos)
+            if f > bound:
+                return f
+            if node == flag_pos:
+                return 'FOUND'
+            min_bound = float('inf')
+            for neighbor in get_neighbors(node):
+                if neighbor not in path:
+                    path.append(neighbor)
+                    t = search(path, g + 1, bound)
+                    if t == 'FOUND':
+                        return 'FOUND'
+                    if t < min_bound:
+                        min_bound = t
+                    path.pop()
+            return min_bound
 
-            if current_pos in visited:
-                continue
-            visited.add(current_pos)
+        def ida_star(root):
+            bound = heuristic(root, flag_pos)
+            path = [root]
+            while True:
+                t = search(path, 0, bound)
+                if t == 'FOUND':
+                    return len(path) - 1
+                if t == float('inf'):
+                    return float('inf')
+                bound = t
 
-            row, col = current_pos
+        def get_neighbors(pos):
+            row, col = pos
             neighbors = [(row-1, col), (row+1, col), (row, col-1), (row, col+1)]
             valid_neighbors = [
                 move for move in neighbors
                 if 0 <= move[0] < 6 and 0 <= move[1] < 7
-                and move not in visited
                 and move not in game_logic.computer.positions
                 and move != game_logic.wall_position
             ]
+            return valid_neighbors
 
-            for neighbor in valid_neighbors:
-                stack.append((neighbor, current_distance + 1))
-            distance-=1
-        return distance  # If the flag is not reachable, return a large number
+        distance = ida_star(start_pos)
+        return -distance  # Return negative distance to reward closer positions
 
     def is_winner(self, old_pos, new_pos, game_logic):
         score = 0
@@ -61,7 +83,7 @@ class Computer(Player):
             player_item = game_logic.player.items[new_pos]
             computer_item = game_logic.computer.items[old_pos]
             if player_item == computer_item:
-                score += 10
+                score += 10  # worth taking the chance...
                 return score
             if self.win(computer_item, player_item):
                 score += 200
@@ -79,3 +101,15 @@ class Computer(Player):
             return True
         else:
             return False
+
+    def shuffle_items_check(self, game_logic):
+        if self.flag_compromised:
+            return
+        for position in self.positions:
+            if position == self.flag_pos:
+                for move in game_logic.get_valid_moves(position, self.positions, game_logic.wall_position):
+                    if move in game_logic.player.positions:
+                        self.flag_compromised = True
+        if self.flag_compromised:
+            self.shuffle_items()
+            time.sleep(1)

@@ -7,7 +7,6 @@ from computer import Computer
 from game import Game
 from game_logic import GameLogic
 import random
-from game_state import GameState
 
 # Initialize Pygame
 pygame.init()
@@ -30,7 +29,7 @@ while running:
             mouse_x, mouse_y = event.pos
             if mouse_x >= 7 * constants.CELL_SIZE:  # Click is in the side column
                 if game.handle_button_click(event, player):
-                    game.player_turn = not game.player_turn  # Toggle turn after shuffle
+                    print("Item's has been shuffled !")
             elif game.player_turn:
                 row, col = mouse_y // constants.CELL_SIZE, mouse_x // constants.CELL_SIZE
                 if selected_position:
@@ -51,7 +50,7 @@ while running:
                     game.draw_piece(selected_position, constants.COLORS['Player'], player.items[selected_position], selected=True)
                 pygame.display.flip()
     if not game.player_turn:
-        computer.make_best_move( game_logic)
+        computer.make_best_move(game_logic)
         time.sleep(1)
         game.player_turn = True
 
