@@ -10,6 +10,7 @@ class Computer(Player):
 
     def make_best_move(self, game_logic):
         self.shuffle_items_check(game_logic= game_logic)
+
         best_move = None
         best_score = -float('inf')
         for position in self.positions:
@@ -53,6 +54,9 @@ class Computer(Player):
             return min_bound
 
         def ida_star(root):
+            if root == self.flag_pos:
+                # do not move with it towards the flag
+                return -10
             bound = heuristic(root, flag_pos)
             path = [root]
             while True:
@@ -105,7 +109,6 @@ class Computer(Player):
     def shuffle_items_check(self, game_logic):
         if self.flag_compromised: # if the computer already did shuffle
             return
-        time.sleep(0.2)
         for position in self.positions:
             if position == self.flag_pos:
                 for move in game_logic.get_valid_moves(position, self.positions, game_logic.wall_position):
