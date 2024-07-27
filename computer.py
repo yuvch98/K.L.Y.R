@@ -1,15 +1,16 @@
-import time
-
+# computer.py
 from player import Player
 
 
 class Computer(Player):
     def __init__(self, positions, items):
+        """Initializes the computer player."""
         super().__init__(positions, items)
         self.flag_compromised = False
 
     def make_best_move(self, game_logic):
-        self.shuffle_items_check(game_logic= game_logic)
+        """Makes the best move based on a heuristic evaluation."""
+        self.shuffle_items_check(game_logic=game_logic)
 
         best_move = None
         best_score = -float('inf')
@@ -24,26 +25,27 @@ class Computer(Player):
             game_logic.check_victory()
 
     def _evaluate_move(self, old_pos, new_pos, game_logic):
-        # Heuristic evaluation function for a move
+        """Heuristic evaluation function for a move."""
         score = 0
         score += self.is_winner(old_pos, new_pos, game_logic)
         score += self.distance_flag(new_pos, game_logic.player.flag_pos, game_logic)  # Add distance evaluation
         return score
 
-    def distance_flag(self, start_pos, flag_pos, game_logic): # uses IDA*
+    def distance_flag(self, start_pos, flag_pos, game_logic):  # uses IDA*
+        """Calculates the distance to the flag using IDA* algorithm."""
         def heuristic(pos1, pos2):
             return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
-        def search(path, g, bound): # Helper function for IDA*
-            node = path[-1] # node = (0, 1)
-            f = g + heuristic(node, flag_pos) # 0 + number
-            if f > bound: # f == bound
+        def search(path, g, bound):  # Helper function for IDA*
+            node = path[-1]  # node = (0, 1)
+            f = g + heuristic(node, flag_pos)  # 0 + number
+            if f > bound:  # f == bound
                 return f
             if node == flag_pos:
                 return 'FOUND'
             min_bound = float('inf')
             for neighbor in get_neighbors(node):
-                if neighbor not in path: # valid moves = neighbor
+                if neighbor not in path:  # valid moves = neighbor
                     path.append(neighbor)
                     t = search(path, g + 1, bound)
                     if t == 'FOUND':
@@ -82,6 +84,7 @@ class Computer(Player):
         return -distance
 
     def is_winner(self, old_pos, new_pos, game_logic):
+        """Evaluates if the move will result in a win."""
         score = 0
         if new_pos in game_logic.player.positions:
             player_item = game_logic.player.items[new_pos]
@@ -97,6 +100,7 @@ class Computer(Player):
         return score
 
     def win(self, computer_item, opponent_item):
+        """Determines if the computer's item wins against the opponent's item."""
         if (computer_item == 'Rock' and opponent_item == 'Scissors') or \
                 (computer_item == 'Paper' and opponent_item == 'Rock') or \
                 (computer_item == 'Scissors' and opponent_item == 'Paper'):
@@ -107,7 +111,8 @@ class Computer(Player):
             return False
 
     def shuffle_items_check(self, game_logic):
-        if self.flag_compromised: # if the computer already did shuffle
+        """Checks if items need to be shuffled and shuffles if necessary."""
+        if self.flag_compromised:  # if the computer already did shuffle
             return
         for position in self.positions:
             if position == self.flag_pos:
@@ -116,4 +121,3 @@ class Computer(Player):
                         self.flag_compromised = True
         if self.flag_compromised:
             self.shuffle_items()
-
