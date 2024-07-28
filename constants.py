@@ -6,10 +6,10 @@ CELL_SIZE = SCREEN_WIDTH // 10  # Adjust cell size if needed
 RADIUS = CELL_SIZE // 3
 
 # Image file paths
-ROCK_PNG = 'rock.png'
-FLAG_PNG = 'red-flag.png'
-SCISSORS_PNG = 'scissors.png'
-PAPER_PNG = 'paper.png'
+ROCK_PNG = 'assets/rock.png'
+FLAG_PNG = 'assets/red-flag.png'
+SCISSORS_PNG = 'assets/scissors.png'
+PAPER_PNG = 'assets/paper.png'
 
 # Colors
 COLORS = {
